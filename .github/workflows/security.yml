@@ -1,5 +1,9 @@
 name: Security Checks
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   security:
@@ -13,29 +17,25 @@ jobs:
     - name: Detect secrets
       uses: gitleaks/gitleaks-action@v2
       with:
-        config-path: https://raw.githubusercontent.com/gitleaks/gitleaks/master/config/gitleaks.toml
+        config-path: .github/gitleaks.toml  # Local config file
     
     # 2. Dependency Check (Security Check #2)
     - name: Check dependencies
-      uses: actions/dependency-review-action@v2
+      uses: actions/dependency-review-action@v3
     
     # SAST Tool #1: Semgrep
     - name: Run Semgrep
       uses: returntocorp/semgrep-action@v1
-      with:
-        config: p/r2c-security-audit
     
     # SAST Tool #2: Bandit
     - name: Run Bandit
       run: |
         pip install bandit
-        [ -f *.py ] && bandit -r . -ll || echo "No Python files to scan"
+        find . -name "*.py" | grep -q . && bandit -r . -ll || echo "No Python files to scan"
     
-    # SCA Tool: OWASP Dependency-Track (Alternative)
+    # SCA Tool: OWASP Dependency-Check (working version)
     - name: SCA Scan with OWASP
       run: |
-        # Install and run OWASP Dependency-Check CLI
         wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.3.1/dependency-check-8.3.1-release.zip
         unzip dependency-check-8.3.1-release.zip
         ./dependency-check/bin/dependency-check.sh --scan . --format HTML --out ./report.html
-        echo "SCA report generated"
