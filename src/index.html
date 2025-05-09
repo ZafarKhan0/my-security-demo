@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Demo Project</title>
+    <!-- Positive Case: Safe library -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    
+    <!-- Negative Case: Vulnerable library (for SCA test) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.9.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Security Demo</h1>
+    
+    <!-- Positive Case: Proper sanitized input -->
+    <input type="text" id="safe-input" value="user123">
+    
+    <!-- Negative Case: SQL injection risk (for SAST test) -->
+    <script>
+        // SAFE CODE (Positive case)
+        function safeLogin(user) {
+            return "SELECT * FROM users WHERE username = '" + user.replace(/'/g, "''") + "'";
+        }
+        
+        // UNSAFE CODE (Negative case)
+        function unsafeLogin(user) {
+            return "SELECT * FROM users WHERE username = '" + user + "'";
+        }
+    </script>
+</body>
+</html>
